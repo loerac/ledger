@@ -1,13 +1,9 @@
-package main
+package ledger
 
 import (
-    "bufio"
     "fmt"
-    "io"
-    "os"
     "strings"
 )
-
 
 type Ledger struct {
     Date []string
@@ -27,12 +23,6 @@ const (
     LGR_COST
     LGR_BALANCE
 )
-
-func check(e error) {
-    if nil != e {
-        panic(e)
-    }
-}
 
 func (lgr *Ledger) ParseLedgerLine(data string) {
     split := strings.Split(data, ":")
@@ -65,24 +55,4 @@ func (lgr Ledger) PrintLedger() {
             fmt.Println("\t\tLocation:", lgr.Address[key])
         }
     }
-}
-
-func main() {
-    ledger := Ledger{}
-    f, err := os.Open("notebook.lgr")
-    defer f.Close()
-    check(err)
-
-    rd := bufio.NewReader(f)
-    for {
-        line, err := rd.ReadString('\n')
-        if err == io.EOF {
-            break
-        }
-
-        check(err)
-        ledger.ParseLedgerLine(line[:len(line) -1])
-    }
-
-    ledger.PrintLedger()
 }
