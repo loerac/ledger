@@ -2,12 +2,10 @@ package main
 
 import (
     "bufio"
-    "fmt"
     "io"
     "os"
-    "strings"
 
-    ledger "package-project/ledger"
+    lgr "github.com/loerac/ledger"
 )
 
 func check(e error) {
@@ -17,7 +15,7 @@ func check(e error) {
 }
 
 func main() {
-    ledger := Ledger{}
+    ledger := lgr.Ledger{}
     f, err := os.Open("notebook.lgr")
     defer f.Close()
     check(err)
