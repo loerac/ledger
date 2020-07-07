@@ -1,10 +1,6 @@
 package main
 
 import (
-    "bufio"
-    "io"
-    "os"
-
     lgr "github.com/loerac/ledger"
 )
 
@@ -14,24 +10,8 @@ func main() {
     /* Get a new init ledger struct */
     ledger := lgr.NewLedger(LEDGER)
 
-    /**
-     * Read the ledger and add it to our struct
-     * TODO: This should be in the ledger package
-     **/
-    f, err := os.Open(ledger.Filepath)
-    defer f.Close()
-    lgr.CheckErr(err)
-
-    rd := bufio.NewReader(f)
-    for {
-        line, err := rd.ReadString('\n')
-        if err == io.EOF {
-            break
-        }
-
-        lgr.CheckErr(err)
-        ledger.ParseLedgerLine(line[:len(line) -1])
-    }
+    /* Read the ledger notebook from above */
+    ledger.ReadLedger()
 
     /* Print the ledger out pretty */
     ledger.PrintLedger()

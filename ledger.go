@@ -1,27 +1,28 @@
 package ledger
 
 import (
+    "bufio"
     "fmt"
+    "io"
     "os"
     "strings"
     "time"
 )
 
-/**
- * TODO: Instead of each item being an array,
- *       the Ledger should be used as an array
- **/
-type Ledger struct {
-    Entries uint64
-    Date []string
-    Store []string
-    Address []string
-    Detail []string
-    Exchange []string
-    Cost []float64
-    Balance []float64
+type EntryItem struct {
+    Date string
+    Store string
+    Address string
+    Detail string
+    Exchange string
+    Cost float64
+    Balance float64
+}
 
+type Ledger struct {
+    NumEntries uint64
     Filepath string
+    Entry []EntryItem
 }
 
 const (
@@ -42,7 +43,7 @@ const (
  **/
 func NewLedger(lgrfp string) Ledger {
     lgr := Ledger{}
-    lgr.Entries = 0
+    lgr.NumEntries = 0
     lgr.Filepath = lgrfp
     fmt.Println("Filepath:", lgr.Filepath)
 
@@ -54,23 +55,26 @@ func NewLedger(lgrfp string) Ledger {
  *          Each data will be added to the ledger.
  *          <YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>
  *
- * @args:   data - meta data
+ * @arg:    data - meta data
  **/
 func (lgr *Ledger) ParseLedgerLine(data string) {
     split := strings.Split(data, ":")
+    entry := EntryItem{}
 
-    lgr.Entries += 1
-    lgr.Date = append(lgr.Date, split[LGR_DATE])
+    lgr.NumEntries += 1
+    entry.Date = split[LGR_DATE]
     loc := strings.Split(split[LGR_LOC], "@")
-    lgr.Store = append(lgr.Store, loc[0])
-    lgr.Address = append(lgr.Address, "")
+    entry.Store = loc[0]
+    entry.Address = ""
     if 2 == len(loc) {
-        lgr.Address = append(lgr.Address[:len(lgr.Address) - 1], loc[1])
+        entry.Address = loc[1]
     }
-    lgr.Detail = append(lgr.Detail, split[LGR_DETAIL])
-    lgr.Exchange = append(lgr.Exchange, split[LGR_EXCHANGE])
-    lgr.Cost = append(lgr.Cost, StrToFloat(split[LGR_COST]))
-    lgr.Balance = append(lgr.Balance, StrToFloat(split[LGR_BALANCE]))
+    entry.Detail = split[LGR_DETAIL]
+    entry.Exchange = split[LGR_EXCHANGE]
+    entry.Cost = StrToFloat(split[LGR_COST])
+    entry.Balance = StrToFloat(split[LGR_BALANCE])
+
+    lgr.Entry = append(lgr.Entry, entry)
 }
 
 /**
@@ -83,24 +87,26 @@ func (lgr *Ledger) ParseLedgerLine(data string) {
  * @arg:    cost - Gain or expense
  **/
 func (lgr *Ledger) AddEntry(store, addr, detail string, isIncome bool, cost float64) {
+    entry := EntryItem{}
     currTime := time.Now()
     date := fmt.Sprintf("%d%02d%02dT%02d%d%d",
             currTime.Year(), currTime.Month(), currTime.Day(),
             currTime.Hour(), currTime.Minute(), currTime.Second())
-    balance := lgr.Balance[lgr.Entries - 1] + cost
+    balance := lgr.Entry[lgr.NumEntries - 1].Balance + cost
     exchange := "Expense"
     if isIncome {
         exchange = "Income"
     }
 
-    lgr.Entries += 1
-    lgr.Date = append(lgr.Date, date)
-    lgr.Store = append(lgr.Store, store)
-    lgr.Address = append(lgr.Address, addr)
-    lgr.Detail = append(lgr.Detail, detail)
-    lgr.Exchange = append(lgr.Exchange, exchange)
-    lgr.Cost = append(lgr.Cost, cost)
-    lgr.Balance = append(lgr.Balance, balance)
+    lgr.NumEntries += 1
+    entry.Date = date
+    entry.Store = store
+    entry.Address = addr
+    entry.Detail = detail
+    entry.Exchange = exchange
+    entry.Cost = cost
+    entry.Balance = balance
+    lgr.Entry = append(lgr.Entry, entry)
 
     exchange += ":"
     if isIncome {
@@ -113,7 +119,7 @@ func (lgr *Ledger) AddEntry(store, addr, detail string, isIncome bool, cost floa
     }
 
     fmt.Println("Added new ledger entry:", newEntry)
-    lgr.PrintLedgerItem(lgr.Entries - 1)
+    lgr.PrintLedgerItem(lgr.NumEntries - 1)
     lgr.AddToLedger(newEntry)
 }
 
@@ -134,6 +140,27 @@ func (lgr Ledger) AddToLedger(entry string) {
     }
 }
 
+/***
+ * @brief:  Read the ledger that was supplied, and add the entries
+ *          to the EntryItem struct
+ ***/
+func (lgr *Ledger) ReadLedger() {
+    f, err := os.Open(lgr.Filepath)
+    defer f.Close()
+    CheckErr(err)
+
+    rd := bufio.NewReader(f)
+    for {
+        line, err := rd.ReadString('\n')
+        if err == io.EOF {
+            break
+        }
+
+        CheckErr(err)
+        lgr.ParseLedgerLine(line[:len(line) -1])
+    }
+}
+
 /**
  * @brief:  Print individual item for ledger. To print the complete ledger,
  *          run `PrintLedger()`
@@ -141,21 +168,22 @@ func (lgr Ledger) AddToLedger(entry string) {
  * @arg:    item - Item to print in the ledger
  **/
 func (lgr Ledger) PrintLedgerItem(item uint64) {
-    if item > lgr.Entries {
+    if item > lgr.NumEntries {
         return
     }
 
-    fmt.Println(lgr.Date[item], lgr.Store[item])
+    entry := lgr.Entry
+    fmt.Println(entry[item].Date, entry[item].Store)
 
     entitySign := ""
-    if lgr.Exchange[item] == "Income" {
+    if entry[item].Exchange == "Income" {
         entitySign = "+"
     }
-    fmt.Printf("\t\t%s: %s %s%f\n", lgr.Exchange[item], lgr.Detail[item], entitySign, lgr.Cost[item])
-    fmt.Printf("\t\tBalance: %f\n", lgr.Balance[item])
+    fmt.Printf("\t\t%s: %s %s%f\n", entry[item].Exchange, entry[item].Detail, entitySign, entry[item].Cost)
+    fmt.Printf("\t\tBalance: %f\n", entry[item].Balance)
 
-    if lgr.Address[item] != "" {
-        fmt.Println("\t\tLocation:", lgr.Address[item])
+    if entry[item].Address != "" {
+        fmt.Println("\t\tLocation:", entry[item].Address)
     }
 }
 
@@ -165,7 +193,7 @@ func (lgr Ledger) PrintLedgerItem(item uint64) {
  **/
 func (lgr Ledger) PrintLedger() {
     var i uint64 = 0
-    for ; i < lgr.Entries; i++ {
+    for ; i < lgr.NumEntries; i++ {
         lgr.PrintLedgerItem(i)
     }
 }
