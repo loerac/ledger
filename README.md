@@ -6,10 +6,10 @@ The ledger has a specific format, as seen below. This addresses the needed infor
 The `<ADDRESS>` data doesn't have to be specified, this can be left blank with empty quotes
 
 ##### Complete meta data
-*  `<YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<COST-ENTITY>:<COST>:<BALANCE>`
+*  `<YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>`
 
 ##### No address
-* `<YYYYMMDDTHHMMSS>:<STORE>:<DETAILS>:<COST-ENTITY>:<COST>:<BALANCE>`
+* `<YYYYMMDDTHHMMSS>:<STORE>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>`
 
 ##### Definitions:
 * `<YYYYMMDDTHHMMSS>`
