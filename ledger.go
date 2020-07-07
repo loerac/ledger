@@ -71,9 +71,7 @@ func CheckErr(e error) {
  **/
 func StrToUint(str string) uint64 {
     u, err := strconv.ParseUint(str, 10, 64)
-    if nil != err {
-        panic(err)
-    }
+    CheckErr(err)
 
     return u
 }
@@ -88,9 +86,7 @@ func StrToUint(str string) uint64 {
  **/
 func StrToFloat(str string) float64 {
     f, err := strconv.ParseFloat(str, 64)
-    if nil != err {
-        panic(err)
-    }
+    CheckErr(err)
 
     return f
 }
