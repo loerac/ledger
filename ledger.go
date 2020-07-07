@@ -28,7 +28,7 @@ const (
     LGR_DATE = iota
     LGR_LOC
     LGR_DETAIL
-    LGR_ENTITY
+    LGR_EXCHANGE
     LGR_COST
     LGR_BALANCE
 )
@@ -68,7 +68,7 @@ func (lgr *Ledger) ParseLedgerLine(data string) {
         lgr.Address = append(lgr.Address[:len(lgr.Address) - 1], loc[1])
     }
     lgr.Detail = append(lgr.Detail, split[LGR_DETAIL])
-    lgr.Exchange = append(lgr.Exchange, split[LGR_ENTITY])
+    lgr.Exchange = append(lgr.Exchange, split[LGR_EXCHANGE])
     lgr.Cost = append(lgr.Cost, StrToFloat(split[LGR_COST]))
     lgr.Balance = append(lgr.Balance, StrToFloat(split[LGR_BALANCE]))
 }
