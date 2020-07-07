@@ -1,7 +1,9 @@
 package ledger
 
 import (
+    "bufio"
     "fmt"
+    "io"
     "os"
     "strings"
     "time"
@@ -53,7 +55,7 @@ func NewLedger(lgrfp string) Ledger {
  *          Each data will be added to the ledger.
  *          <YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>
  *
- * @args:   data - meta data
+ * @arg:    data - meta data
  **/
 func (lgr *Ledger) ParseLedgerLine(data string) {
     split := strings.Split(data, ":")
@@ -135,6 +137,27 @@ func (lgr Ledger) AddToLedger(entry string) {
     if _, err := f.Write([]byte(entry + "\n")); err != nil {
         f.Close()
         panic(err)
+    }
+}
+
+/***
+ * @brief:  Read the ledger that was supplied, and add the entries
+ *          to the EntryItem struct
+ ***/
+func (lgr *Ledger) ReadLedger() {
+    f, err := os.Open(lgr.Filepath)
+    defer f.Close()
+    CheckErr(err)
+
+    rd := bufio.NewReader(f)
+    for {
+        line, err := rd.ReadString('\n')
+        if err == io.EOF {
+            break
+        }
+
+        CheckErr(err)
+        lgr.ParseLedgerLine(line[:len(line) -1])
     }
 }
 
