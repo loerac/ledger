@@ -17,7 +17,7 @@ type Ledger struct {
     Store []string
     Address []string
     Detail []string
-    Entity []string
+    Exchange []string
     Cost []float64
     Balance []float64
 
@@ -52,7 +52,7 @@ func NewLedger(lgrfp string) Ledger {
 /**
  * @brief:  Parse the meta data of each line in the ledger, as seen below.
  *          Each data will be added to the ledger.
- *          <YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<COST-ENTITY>:<COST>:<BALANCE>
+ *          <YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>
  *
  * @args:   data - meta data
  **/
@@ -68,7 +68,7 @@ func (lgr *Ledger) ParseLedgerLine(data string) {
         lgr.Address = append(lgr.Address[:len(lgr.Address) - 1], loc[1])
     }
     lgr.Detail = append(lgr.Detail, split[LGR_DETAIL])
-    lgr.Entity = append(lgr.Entity, split[LGR_ENTITY])
+    lgr.Exchange = append(lgr.Exchange, split[LGR_ENTITY])
     lgr.Cost = append(lgr.Cost, StrToFloat(split[LGR_COST]))
     lgr.Balance = append(lgr.Balance, StrToFloat(split[LGR_BALANCE]))
 }
@@ -79,33 +79,37 @@ func (lgr *Ledger) ParseLedgerLine(data string) {
  * @arg:    store - Name of the store
  * @arg:    addr - Location of the store. Optional, can be left blank
  * @arg:    detail - Reasoning or brief detail
- * @arg:    entity - Either "Expense" or "Income"
+ * @arg:    exchange - Either "Expense" or "Income"
  * @arg:    cost - Gain or expense
  **/
-func (lgr *Ledger) AddEntry(store, addr, detail, entity string, cost float64) {
+func (lgr *Ledger) AddEntry(store, addr, detail string, isIncome bool, cost float64) {
     currTime := time.Now()
     date := fmt.Sprintf("%d%02d%02dT%02d%d%d",
             currTime.Year(), currTime.Month(), currTime.Day(),
             currTime.Hour(), currTime.Minute(), currTime.Second())
     balance := lgr.Balance[lgr.Entries - 1] + cost
+    exchange := "Expense"
+    if isIncome {
+        exchange = "Income"
+    }
 
     lgr.Entries += 1
     lgr.Date = append(lgr.Date, date)
     lgr.Store = append(lgr.Store, store)
     lgr.Address = append(lgr.Address, addr)
     lgr.Detail = append(lgr.Detail, detail)
-    lgr.Entity = append(lgr.Entity, entity)
+    lgr.Exchange = append(lgr.Exchange, exchange)
     lgr.Cost = append(lgr.Cost, cost)
     lgr.Balance = append(lgr.Balance, balance)
 
-    entitySign := "Income:+"
-    if cost < 0.0 {
-        entitySign = "Expense:"
+    exchange += ":"
+    if isIncome {
+        exchange += "+"
     }
 
-    newEntry := fmt.Sprintf("%s:%s@%s:%s:%s%0.2f:%0.2f", date, store, addr, detail, entitySign, cost, balance)
+    newEntry := fmt.Sprintf("%s:%s@%s:%s:%s%0.2f:%0.2f", date, store, addr, detail, exchange, cost, balance)
     if "" == addr {
-        newEntry = fmt.Sprintf("%s:%s:%s:%s%0.2f:%0.2f", date, store, detail, entitySign, cost, balance)
+        newEntry = fmt.Sprintf("%s:%s:%s:%s%0.2f:%0.2f", date, store, detail, exchange, cost, balance)
     }
 
     fmt.Println("Added new ledger entry:", newEntry)
@@ -117,7 +121,7 @@ func (lgr *Ledger) AddEntry(store, addr, detail, entity string, cost float64) {
  * @brief:  Add the new entry to the ledger file
  *
  * @arg:    entry - Entry in the meta data format
- *          <YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<COST-ENTITY>:<COST>:<BALANCE>
+ *          <YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>
  **/
 func (lgr Ledger) AddToLedger(entry string) {
     f, err := os.OpenFile(lgr.Filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -144,10 +148,10 @@ func (lgr Ledger) PrintLedgerItem(item uint64) {
     fmt.Println(lgr.Date[item], lgr.Store[item])
 
     entitySign := ""
-    if lgr.Entity[item] == "Income" {
+    if lgr.Exchange[item] == "Income" {
         entitySign = "+"
     }
-    fmt.Printf("\t\t%s: %s %s%f\n", lgr.Entity[item], lgr.Detail[item], entitySign, lgr.Cost[item])
+    fmt.Printf("\t\t%s: %s %s%f\n", lgr.Exchange[item], lgr.Detail[item], entitySign, lgr.Cost[item])
     fmt.Printf("\t\tBalance: %f\n", lgr.Balance[item])
 
     if lgr.Address[item] != "" {

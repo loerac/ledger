@@ -37,6 +37,6 @@ func main() {
     ledger.PrintLedger()
 
     /* Add to new items to the ledger, one expense and one income type */
-    ledger.AddEntry("Store store", "S 456 St., Small Town, Big State", "Shopping", "Expense", -19)
-    ledger.AddEntry("Farm Big Lot", "", "Farm equipment", "Income", 19)
+    ledger.AddEntry("Store store", "S 456 St., Small Town, Big State", "Shopping", false, -19)
+    ledger.AddEntry("Farm Big Lot", "", "Farm equipment", true, 19)
 }
