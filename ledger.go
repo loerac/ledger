@@ -79,7 +79,7 @@ func (lgr *Ledger) ParseLedgerLine(data string) {
  * @arg:    store - Name of the store
  * @arg:    addr - Location of the store. Optional, can be left blank
  * @arg:    detail - Reasoning or brief detail
- * @arg:    exchange - Either "Expense" or "Income"
+ * @arg:    exchange - Either true ("Income") or false ("Expense")
  * @arg:    cost - Gain or expense
  **/
 func (lgr *Ledger) AddEntry(store, addr, detail string, isIncome bool, cost float64) {
@@ -135,7 +135,7 @@ func (lgr Ledger) AddToLedger(entry string) {
 }
 
 /**
- * @brief:  Print individual item for ledger. To print the complet ledger,
+ * @brief:  Print individual item for ledger. To print the complete ledger,
  *          run `PrintLedger()`
  *
  * @arg:    item - Item to print in the ledger
