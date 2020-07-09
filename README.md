@@ -32,4 +32,4 @@ The `<ADDRESS>` data doesn't have to be specified, this can be left blank with e
   * Updated balance from exchange
 
 ##### Example:
-`0x4ee87e41a13b2634:20200706T121409:Apple Store:Surface Pro 7:Expense:15.99:+6969.69`
+`936e1204e7b8c686:20200706T121409:Apple Store:Surface Pro 7:Expense:15.99:+6969.69`
