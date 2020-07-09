@@ -1,7 +1,9 @@
 package ledger
 
 import (
+    "fmt"
     "strconv"
+    "time"
 )
 
 /**
@@ -43,4 +45,11 @@ func StrToFloat(str string) float64 {
     CheckErr(err)
 
     return f
+}
+
+func GetDate() string {
+    currTime := time.Now()
+    return fmt.Sprintf("%d%02d%02dT%02d%d%d",
+                currTime.Year(), currTime.Month(), currTime.Day(),
+                currTime.Hour(), currTime.Minute(), currTime.Second())
 }
