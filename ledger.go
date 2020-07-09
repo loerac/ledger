@@ -6,7 +6,6 @@ import (
     "io"
     "os"
     "strings"
-    "time"
 )
 
 type EntryItem struct {
@@ -97,10 +96,11 @@ func (lgr *Ledger) ParseLedgerLine(data string) {
  * @arg:    cost - Gain or expense
  **/
 func (lgr *Ledger) AddEntry(acctNum, store, addr, detail string, isIncome bool, cost float64) {
-    currTime := time.Now()
-    date := fmt.Sprintf("%d%02d%02dT%02d%d%d",
-            currTime.Year(), currTime.Month(), currTime.Day(),
-            currTime.Hour(), currTime.Minute(), currTime.Second())
+    if !lgr.IsValidAccount(acctNum) {
+        return
+    }
+
+    date := GetDate()
     balance := lgr.AccountNum[acctNum][len(lgr.AccountNum) - 1].Balance + cost
     exchange := "Expense"
     if isIncome {
@@ -194,6 +194,10 @@ func (lgr Ledger) PrintLedgerItem(entry EntryItem) {
  * @arg:    acctNum - Account Number of the entry
  **/
 func (lgr Ledger) PrintLedgerAccount(acctNum string) {
+    if !lgr.IsValidAccount(acctNum) {
+        return
+    }
+
     fmt.Println("Account Number:", acctNum)
     fmt.Println("============================")
     for _, v := range lgr.AccountNum[acctNum] {
