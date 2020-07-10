@@ -9,7 +9,7 @@ import (
 /**
  * @brief:  Check if any errors occured, panic if so
  *
- * @args:   e - Error
+ * @arg:    e - Error
  **/
 func CheckErr(e error) {
     if nil != e {
@@ -21,7 +21,7 @@ func CheckErr(e error) {
  * @brief:  Converts a string to an uint64.
  *          Panic if errors
  *
- * @args:   str - String that is to be converted to uint64
+ * @arg:    str - String that is to be converted to uint64
  *
  * @return: uint64 val of string
  **/
@@ -36,7 +36,7 @@ func StrToUint(str string) uint64 {
  * @brief:  Converts a string to an float64.
  *          Panic if errors
  *
- * @args:   str - String that is to be converted to float64
+ * @arg:    str - String that is to be converted to float64
  *
  * @return: float64 val of string
  **/
@@ -47,9 +47,14 @@ func StrToFloat(str string) float64 {
     return f
 }
 
+/**
+ * @brief:  Get the current date and time
+ *
+ * @return: The date and time in the format of <YYYYMMDD>T<HHMMSS>
+ **/
 func GetDate() string {
     currTime := time.Now()
     return fmt.Sprintf("%d%02d%02dT%02d%d%d",
-                currTime.Year(), currTime.Month(), currTime.Day(),
-                currTime.Hour(), currTime.Minute(), currTime.Second())
+            currTime.Year(), currTime.Month(), currTime.Day(),
+            currTime.Hour(), currTime.Minute(), currTime.Second())
 }

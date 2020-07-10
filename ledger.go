@@ -8,6 +8,13 @@ import (
     "strings"
 )
 
+/**
+ * Each entry must have the date that the entry was created,
+ * location that the exchange was done, a reason for the exchange,
+ * exchange type (income or expense), cost of exchange, and
+ * current balance.
+ * The address is optional, this could be left blank.
+ **/
 type EntryItem struct {
     Date        string
     Store       string
@@ -18,15 +25,25 @@ type EntryItem struct {
     Balance     float64
 }
 
+/**
+ * Ledger holds the filepath to the ledger notebook,
+ * and the list of entries in the ledger (divided up by
+ * the account number)
+ **/
 type Ledger struct {
     Filepath    string
     AccountNum  map[string][]EntryItem
 }
 
 const (
+    /* Length of the metadata */
     METADATA_LEN int = 7
 )
 
+/**
+ * Enum index value of the metadata
+ * Account number starts at index 0
+ **/
 const (
     LGR_ACCOUNT_NUM = iota
     LGR_DATE
