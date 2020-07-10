@@ -48,6 +48,25 @@ func StrToFloat(str string) float64 {
 }
 
 /**
+ * @brief:  A ternary functions that checks for the condition and
+ *          return a value. Type cast the function to get the
+ *          data type that is expecting
+ *
+ * @arg:    condition - Condition to check for validity
+ * @arg:    valid - Val being returned if the condition is true
+ * @arg:    invalid - Val being returned if the condition is false
+ *
+ * @return: Depending on the condition, an interface value is returned.
+ **/
+func ternary(condition bool, valid, invalid interface{}) interface{} {
+    if condition {
+        return valid
+    }
+
+    return invalid
+}
+
+/**
  * @brief:  Get the current date and time
  *
  * @return: The date and time in the format of <YYYYMMDD>T<HHMMSS>
