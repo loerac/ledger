@@ -6,12 +6,14 @@ The ledger has a specific format, as seen below. This addresses the needed infor
 The `<ADDRESS>` data doesn't have to be specified, this can be left blank with empty quotes
 
 ##### Complete meta data
-*  `<YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>`
+*  `<ACCOUNT-NUM>:<YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>`
 
 ##### No address
-* `<YYYYMMDDTHHMMSS>:<STORE>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>`
+* `<ACCOUNT-NUM>:<YYYYMMDDTHHMMSS>:<STORE>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>`
 
 ##### Definitions:
+* `<ACCOUNT-NUM>`
+  * Account Number for the user
 * `<YYYYMMDDTHHMMSS>`
   * Year, month, day, (24) hour, minute, seconds
   * The 'T' splits the date from the time
@@ -30,4 +32,4 @@ The `<ADDRESS>` data doesn't have to be specified, this can be left blank with e
   * Updated balance from exchange
 
 ##### Example:
-`20200706T121409:Apple Store:Surface Pro 7:Expense:15.99:+6969.69`
+`936e1204e7b8c686:20200706T121409:Apple Store:Surface Pro 7:Expense:15.99:+6969.69`
