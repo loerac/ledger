@@ -176,12 +176,8 @@ func (lgr *Ledger) ReadLedger() {
 func (lgr Ledger) PrintLedgerItem(entry EntryItem) {
     fmt.Println(entry.Date, entry.Store)
 
-    entitySign := ""
-    if entry.Exchange == "Income" {
-        entitySign = "+"
-    }
-    fmt.Printf("\t\t%s: %s %s%f\n", entry.Exchange, entry.Detail, entitySign, entry.Cost)
-    fmt.Printf("\t\tBalance: %f\n", entry.Balance)
+    fmt.Printf("\t\t%s: %s $%0.2f\n", entry.Exchange, entry.Detail, entry.Cost)
+    fmt.Printf("\t\tBalance: $%0.2f\n", entry.Balance)
 
     if entry.Address != "" {
         fmt.Println("\t\tLocation:", entry.Address)
@@ -199,7 +195,7 @@ func (lgr Ledger) PrintLedgerAccount(acctNum string) {
     }
 
     fmt.Println("Account Number:", acctNum)
-    fmt.Println("============================")
+    fmt.Println("================================")
     for _, v := range lgr.AccountNum[acctNum] {
         lgr.PrintLedgerItem(v)
     }
@@ -211,12 +207,7 @@ func (lgr Ledger) PrintLedgerAccount(acctNum string) {
  *          run `PrintLedgerItem()`
  **/
 func (lgr Ledger) PrintLedger() {
-    for key, val := range lgr.AccountNum {
-        fmt.Println("Account Number:", key)
-        fmt.Println("============================")
-        for _, v := range val {
-            lgr.PrintLedgerItem(v)
-        }
-        fmt.Println()
+    for key := range lgr.AccountNum {
+        lgr.PrintLedgerAccount(key)
     }
 }
