@@ -130,11 +130,6 @@ func (lgr *Ledger) AddEntry(acctNum, store, addr, detail string, isIncome bool, 
             EntryItem{date, store, addr, detail, exchange, cost, balance},
         )
 
-    exchange += ":"
-    if isIncome {
-        exchange += "+"
-    }
-
     newEntry := fmt.Sprintf("%s:%s:%s@%s:%s:%s%0.2f:%0.2f", acctNum, date, store, addr, detail, exchange, cost, balance)
     if "" == addr {
         newEntry = fmt.Sprintf("%s:%s:%s:%s:%s%0.2f:%0.2f", acctNum, date, store, detail, exchange, cost, balance)
