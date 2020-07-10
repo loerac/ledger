@@ -119,10 +119,7 @@ func (lgr *Ledger) AddEntry(acctNum, store, addr, detail string, isIncome bool, 
 
     date := GetDate()
     balance := lgr.AccountNum[acctNum][len(lgr.AccountNum) - 1].Balance + cost
-    exchange := "Expense"
-    if isIncome {
-        exchange = "Income"
-    }
+    exchange := ternary(isIncome, "Income", "Expense").(string)
 
     lgr.AccountNum[acctNum] =
         append(
