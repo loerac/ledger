@@ -9,6 +9,9 @@ import (
  * @brief:  Create a new accout for the ledger. The account will be a hash
  *          of the users full name, date of creation, and the initial balance.
  *
+ * @arg:    fullname - Full name of the user being added
+ * @arg:    initBalance - Initial balance of the user.
+ *
  * @return: The hash value of the account
  **/
 func (lgr Ledger) CreateAccountHash(fullname string, initBalance float64) string {
@@ -19,6 +22,8 @@ func (lgr Ledger) CreateAccountHash(fullname string, initBalance float64) string
 
 /**
  * @brief:  Check if the given account number is valid in the ledger
+ *
+ * @arg:    acctNum - Account number to check if found/valid
  *
  * @return true if valid, else false
  **/
