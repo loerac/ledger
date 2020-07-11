@@ -55,7 +55,7 @@ func (lgr Ledger) OutputAccount(acctNum, fname string) {
     for _, entry := range lgr.AccountNum[acctNum] {
         ent := "|" + entry.Date + "|" + entry.Store
         if entry.Address != "" {
-            ent += "<br>" + entry.Address
+            ent += "<br>*@" + entry.Address + "*"
         }
         ent += "|" + entry.Detail + "|" + fmt.Sprintf("%0.2f", entry.Cost) + "|" + fmt.Sprintf("%0.2f", entry.Balance) + "|"
         lf.Println(ent)
