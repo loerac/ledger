@@ -109,17 +109,16 @@ func (lgr *Ledger) ParseLedgerLine(data string) {
  * @arg:    store - Name of the store
  * @arg:    addr - Location of the store. Optional, can be left blank
  * @arg:    detail - Reasoning or brief detail
- * @arg:    exchange - Either true ("Income") or false ("Expense")
  * @arg:    cost - Gain or expense
  **/
-func (lgr *Ledger) AddEntry(acctNum, store, addr, detail string, isIncome bool, cost float64) {
+func (lgr *Ledger) AddEntry(acctNum, store, addr, detail string, cost float64) {
     if !lgr.IsValidAccount(acctNum) {
         return
     }
 
     date := GetDate()
-    balance := lgr.AccountNum[acctNum][len(lgr.AccountNum) - 1].Balance + cost
-    exchange := ternary(isIncome, "Income", "Expense").(string)
+    balance := lgr.AccountNum[acctNum][len(lgr.AccountNum[acctNum]) - 1].Balance + cost
+    exchange := ternary(cost < 0.00, "Expense", "Income").(string)
 
     lgr.AccountNum[acctNum] =
         append(
@@ -127,13 +126,13 @@ func (lgr *Ledger) AddEntry(acctNum, store, addr, detail string, isIncome bool, 
             EntryItem{date, store, addr, detail, exchange, cost, balance},
         )
 
-    newEntry := fmt.Sprintf("%s:%s:%s@%s:%s:%s%0.2f:%0.2f", acctNum, date, store, addr, detail, exchange, cost, balance)
+    newEntry := fmt.Sprintf("%s:%s:%s@%s:%s:%s:%0.2f:%0.2f", acctNum, date, store, addr, detail, exchange, cost, balance)
     if "" == addr {
-        newEntry = fmt.Sprintf("%s:%s:%s:%s:%s%0.2f:%0.2f", acctNum, date, store, detail, exchange, cost, balance)
+        newEntry = fmt.Sprintf("%s:%s:%s:%s:%s:%0.2f:%0.2f", acctNum, date, store, detail, exchange, cost, balance)
     }
 
     fmt.Println("Added new ledger entry:")
-    lgr.PrintLedgerItem(lgr.AccountNum[acctNum][len(lgr.AccountNum) - 1])
+    lgr.PrintLedgerItem(lgr.AccountNum[acctNum][len(lgr.AccountNum[acctNum]) - 1])
     fmt.Println()
     lgr.AddToLedger(newEntry)
 }

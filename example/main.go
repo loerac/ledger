@@ -19,8 +19,8 @@ func main() {
     ledger.PrintLedger()
 
     /* Add to new items to the ledger, one expense and one income type */
-    ledger.AddEntry("5524c5d66aeee973", "Store store", "S 456 St., Small Town, Big State", "Shopping", false, -19)
-    ledger.AddEntry("936e1204e7b8c686", "Farm Big Lot", "", "Farm equipment", true, 19)
+    ledger.AddEntry("5524c5d66aeee973", "Store store", "S 456 St., Small Town, Big State", "Shopping", -19)
+    ledger.AddEntry("936e1204e7b8c686", "Farm Big Lot", "", "Farm equipment", 19)
 
     /* Print the information on an account */
     ledger.PrintLedgerAccount("5524c5d66aeee973")
