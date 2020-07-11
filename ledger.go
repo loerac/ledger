@@ -54,6 +54,8 @@ const (
     LGR_BALANCE
 )
 
+var logger *LogFile
+
 /**
  * @brief:  Create a new ledger struct object
  *
@@ -65,6 +67,7 @@ func NewLedger(lgrfp string) Ledger {
     lgr := Ledger{}
     lgr.Filepath = lgrfp
     lgr.AccountNum = make(map[string][]EntryItem)
+    logger = NewLog("ledger.log", "ledger - ")
 
     return lgr
 }
@@ -131,6 +134,7 @@ func (lgr *Ledger) AddEntry(acctNum, store, addr, detail string, cost float64) {
         newEntry = fmt.Sprintf("%s:%s:%s:%s:%s:%0.2f:%0.2f", acctNum, date, store, detail, exchange, cost, balance)
     }
 
+    logger.Println("Added new ledger entry:", newEntry)
     fmt.Println("Added new ledger entry:")
     lgr.PrintLedgerItem(lgr.AccountNum[acctNum][len(lgr.AccountNum[acctNum]) - 1])
     fmt.Println()
