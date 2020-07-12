@@ -12,6 +12,15 @@ type LogFile struct {
     *log.Logger
 }
 
+
+/**
+ * @brief:  Initialize a log file
+ *
+ * @arg:    fname - Log file file name
+ * @arg:    prefix - Name for the logs
+ *
+ * @return: LogFile struct pointer
+ **/
 func NewLog(fname, prefix string) *LogFile {
     var lf   *LogFile
     var once sync.Once
@@ -23,17 +32,34 @@ func NewLog(fname, prefix string) *LogFile {
     return lf
 }
 
+/**
+ * @brief:  Creates a global log file
+ *
+ * @arg:    fname - Log file file name
+ * @arg:    prefix - Name for the logs
+ *
+ * @return: LogFile struct pointer
+ **/
 func CreateLogFile(fname, prefix string) *LogFile {
-    f, err := os.OpenFile(fname, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+    filename := ternary(fname != "", fname, GetDate() + ".log").(string)
+    f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     CheckErr(err)
 
     return &LogFile{
-        Filename:   fname,
+        Filename:   filename,
         Logger:     log.New(f, prefix, log.Lshortfile|log.Lmsgprefix),
     }
 }
 
-func (lgr Ledger) OutputAccount(acctNum, fname string) {
+/**
+ * @brief:  Save the ledger data into a table, the data will
+ *          be saved into a markdown table. To print a all
+ *          the table, see `PrintAllToTable()`
+ *
+ * @arg:    fname - File name for the markdown file, optional
+ * @arg:    acctNum - Account name to save the data if fname is not present
+ **/
+func (lgr Ledger) PrintToTable(acctNum, fname string) {
     filename := GetDate()
     if fname != "" {
        filename = fname
@@ -57,5 +83,15 @@ func (lgr Ledger) OutputAccount(acctNum, fname string) {
         }
         ent += "|" + entry.Detail + "|" + fmt.Sprintf("%0.2f", entry.Cost) + "|" + fmt.Sprintf("%0.2f", entry.Balance) + "|"
         lf.Println(ent)
+    }
+}
+
+/**
+ * @brief:  Prints all the ledgers into a markdown table
+ *          To print a single table, see `PrintToTable()`
+ **/
+func (lgr Ledger) PrintAllToTable() {
+    for key := range lgr.AccountNum {
+        lgr.PrintToTable(key, "")
     }
 }

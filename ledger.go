@@ -35,11 +35,6 @@ type Ledger struct {
     AccountNum  map[string][]EntryItem
 }
 
-const (
-    /* Length of the metadata */
-    METADATA_LEN int = 7
-)
-
 /**
  * Enum index value of the metadata
  * Account number starts at index 0
@@ -52,6 +47,9 @@ const (
     LGR_EXCHANGE
     LGR_COST
     LGR_BALANCE
+
+    /* Length of the metadata */
+    METADATA_LEN
 )
 
 var logger *LogFile
@@ -212,8 +210,6 @@ func (lgr Ledger) PrintLedgerAccount(acctNum string) {
         lgr.PrintLedgerItem(v)
     }
     fmt.Println()
-
-    lgr.OutputAccount(acctNum, "")
 }
 
 /**
