@@ -47,13 +47,11 @@ func (lgr Ledger) OutputAccount(acctNum, fname string) {
     CheckErr(err)
 
     lf := log.New(f, "", 0)
-
     lf.Println("##### Account Number:", acctNum)
-    lf.Println("#")
-    lf.Println("| Date                | Transfer To                                     | Description                   | Cost     | Balance  |")
-    lf.Println("|---------------------|-------------------------------------------------|-------------------------------|----------|----------|")
+    lf.Println("| Date | Transfer To | Description | Cost | Balance |")
+    lf.Println("|---|---|---|---|---|")
     for _, entry := range lgr.AccountNum[acctNum] {
-        ent := "|" + entry.Date + "|" + entry.Store
+        ent := "|" + FormatDate(entry.Date) + "|" + entry.Store
         if entry.Address != "" {
             ent += "<br>*@" + entry.Address + "*"
         }

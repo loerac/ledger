@@ -212,6 +212,8 @@ func (lgr Ledger) PrintLedgerAccount(acctNum string) {
         lgr.PrintLedgerItem(v)
     }
     fmt.Println()
+
+    lgr.OutputAccount(acctNum, "")
 }
 
 /**
