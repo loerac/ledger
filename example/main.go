@@ -24,7 +24,9 @@ func main() {
 
     /* Print the information on an account */
     ledger.PrintLedgerAccount("5524c5d66aeee973")
-    ledger.PrintLedgerAccount("936e1204e7b8c686")
+
+    /* Print the information into a markdown table */
+    ledger.PrintToTable("936e1204e7b8c686", "")
 
     /* Add a new account */
     fullname := "Christian Loera"
