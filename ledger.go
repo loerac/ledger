@@ -133,8 +133,9 @@ func (lgr *Ledger) AddEntry(acctNum, store, addr, detail string, cost float64) {
         newEntry = fmt.Sprintf("%s:%s:%s:%s:%s:%0.2f:%0.2f", acctNum, date, store, detail, exchange, cost, balance)
     }
 
-    logger.Println("Added new ledger entry:", newEntry)
-    fmt.Println("Added new ledger entry:")
+    msg := "Added new entry account number " + acctNum + ":"
+    logger.Println(msg, newEntry)
+    fmt.Println(msg)
     lgr.PrintLedgerItem(lgr.AccountNum[acctNum][len(lgr.AccountNum[acctNum]) - 1])
     fmt.Println()
     lgr.AddToLedger(newEntry)
