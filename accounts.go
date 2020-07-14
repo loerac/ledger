@@ -17,7 +17,11 @@ import (
 func (lgr Ledger) CreateAccountHash(fullname string, initBalance float64) string {
     var h maphash.Hash
     h.WriteString(fullname + GetDate() + fmt.Sprintf("%f", initBalance))
-    return fmt.Sprintf("%x", h.Sum64())
+    hash := fmt.Sprintf("%x", h.Sum64())
+    lgr.AccountNum[hash] = make([]EntryItem,1)
+    lgr.AccountNum[hash][0].Balance = initBalance
+
+    return hash
 }
 
 /**

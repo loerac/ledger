@@ -35,11 +35,6 @@ type Ledger struct {
     AccountNum  map[string][]EntryItem
 }
 
-const (
-    /* Length of the metadata */
-    METADATA_LEN int = 7
-)
-
 /**
  * Enum index value of the metadata
  * Account number starts at index 0
@@ -52,7 +47,12 @@ const (
     LGR_EXCHANGE
     LGR_COST
     LGR_BALANCE
+
+    /* Length of the metadata */
+    METADATA_LEN
 )
+
+var logger *LogFile
 
 /**
  * @brief:  Create a new ledger struct object
@@ -61,10 +61,12 @@ const (
  *
  * @return: A new created ledger struct with the file path
  **/
-func NewLedger(lgrfp string) Ledger {
+func NewLedger(lgrfp, fname string) Ledger {
     lgr := Ledger{}
     lgr.Filepath = lgrfp
     lgr.AccountNum = make(map[string][]EntryItem)
+    logFile := ternary(fname != "", fname, "ledger.log").(string)
+    logger = NewLog(logFile, "ledger - ")
 
     return lgr
 }
@@ -131,6 +133,7 @@ func (lgr *Ledger) AddEntry(acctNum, store, addr, detail string, cost float64) {
         newEntry = fmt.Sprintf("%s:%s:%s:%s:%s:%0.2f:%0.2f", acctNum, date, store, detail, exchange, cost, balance)
     }
 
+    logger.Println("Added new ledger entry:", newEntry)
     fmt.Println("Added new ledger entry:")
     lgr.PrintLedgerItem(lgr.AccountNum[acctNum][len(lgr.AccountNum[acctNum]) - 1])
     fmt.Println()

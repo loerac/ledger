@@ -10,7 +10,7 @@ const LEDGER string = "notebook.lgr"
 
 func main() {
     /* Get a new init ledger struct */
-    ledger := lgr.NewLedger(LEDGER)
+    ledger := lgr.NewLedger(LEDGER, "")
 
     /* Read the ledger notebook from above */
     ledger.ReadLedger()
@@ -24,9 +24,13 @@ func main() {
 
     /* Print the information on an account */
     ledger.PrintLedgerAccount("5524c5d66aeee973")
-    ledger.PrintLedgerAccount("936e1204e7b8c686")
+
+    /* Print the information into a markdown table */
+    ledger.PrintToTable("936e1204e7b8c686", "ledger-table")
 
     /* Add a new account */
     fullname := "Christian Loera"
-    fmt.Println("New account number for", fullname, "-", ledger.CreateAccountHash(fullname, 12.90))
+    hash := ledger.CreateAccountHash(fullname, 12.90)
+    ledger.AddEntry(hash, "Amazon", "", "Bright White Ties", -2.90)
+    fmt.Println("New account number for", fullname, "-", hash)
 }
