@@ -61,11 +61,12 @@ var logger *LogFile
  *
  * @return: A new created ledger struct with the file path
  **/
-func NewLedger(lgrfp string) Ledger {
+func NewLedger(lgrfp, fname string) Ledger {
     lgr := Ledger{}
     lgr.Filepath = lgrfp
     lgr.AccountNum = make(map[string][]EntryItem)
-    logger = NewLog("ledger.log", "ledger - ")
+    logFile := ternary(fname != "", fname, "ledger.log").(string)
+    logger = NewLog(logFile, "ledger - ")
 
     return lgr
 }
