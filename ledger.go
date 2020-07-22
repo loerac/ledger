@@ -46,8 +46,6 @@ var logger *LogFile
 /**
  * @brief:  Create a new ledger struct object
  *
- * @arg:    lgrfp - Ledger filepath
- *
  * @return: A new created ledger struct with the file path
  **/
 func NewLedger() Ledger {
@@ -64,6 +62,7 @@ func NewLedger() Ledger {
  *          <YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>
  *
  * @arg:    data - meta data
+ * @arg:    acctNum - Account Number of the entry
  **/
 func (lgr *Ledger) ParseLedgerLine(data, acctNum string) {
     split := strings.Split(data, ":")
@@ -132,6 +131,7 @@ func (lgr *Ledger) AddEntry(acctNum, store, addr, detail string, cost float64) {
  *
  * @arg:    entry - Entry in the meta data format
  *          <YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>
+ * @arg:    acctNum - Account Number of the entry
  **/
 func (lgr Ledger) AddToLedger(entry, acctNum string) {
     f, err := os.OpenFile(lgr.Accounts[acctNum].Filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -147,6 +147,8 @@ func (lgr Ledger) AddToLedger(entry, acctNum string) {
 /***
  * @brief:  Read the ledger that was supplied, and add the entries
  *          to the EntryItem struct
+ *
+ * @arg:    fpaths - variadic filepaths of the ledger notebook
  ***/
 func (lgr *Ledger) ReadLedger(fpaths ...string) {
     for _, fpath := range fpaths {
@@ -160,7 +162,7 @@ func (lgr *Ledger) ReadLedger(fpaths ...string) {
         line, err := rd.ReadString('\n')
         split := strings.Split(line[:len(line) -1], ":")
         if METADATA_ACCT_LEN != len(split) {
-            fmt.Println("Malformed ledger:", fpath, METADATA_ACCT_LEN)
+            fmt.Println("Malformed ledger:", fpath)
             return
         }
         lgr.Accounts[split[ACCT_NUMB]] = &Account{fpath, split[ACCT_NAME], []EntryItem{}}

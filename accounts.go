@@ -41,6 +41,7 @@ type Account struct {
  *          ledger notebook will also be created with the initial balance.
  *
  * @arg:    fullname - Full name of the user being added
+ * @arg:    fpath - Filepath to create the new ledger notebook
  * @arg:    initBalance - Initial balance of the user.
  *
  * @return: The hash value of the account
