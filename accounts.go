@@ -30,7 +30,7 @@ type EntryItem struct {
  **/
 type Account struct {
     Filepath    string
-    Firstname   string
+    Fullname    string
     Entry       []EntryItem
 }
 
@@ -54,7 +54,7 @@ func (lgr *Ledger) CreateAccountHash(fullname, fpath string, initBalance float64
     lgr.Accounts[acctNum] = &Account{fpath, fullname, []EntryItem{}}
 
     /* Create a new ledger notebook */
-    err := os.Remove(fpath)
+    err := os.RemoveAll(fpath)
     CheckErr(err)
     f, err := os.OpenFile(fpath, os.O_CREATE|os.O_WRONLY, 0644)
     defer f.Close()
