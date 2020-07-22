@@ -47,7 +47,7 @@ func CreateLogFile(fname, prefix string) *LogFile {
 
     return &LogFile{
         Filename:   filename,
-        Logger:     log.New(f, prefix, log.Lshortfile|log.Lmsgprefix),
+        Logger:     log.New(f, prefix, log.LstdFlags|log.Lmsgprefix),
     }
 }
 

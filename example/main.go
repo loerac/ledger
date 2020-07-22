@@ -29,7 +29,7 @@ func main() {
     ledger.PrintLedgerAccount("5524c5d66aeee973")
 
     /* Print the information into a markdown table */
-    ledger.PrintToTable("936e1204e7b8c686", "")
+    ledger.PrintToTable("936e1204e7b8c686", "ledger-table")
 
     /* Add a new account */
     fullname := "Jimmy Johns"
