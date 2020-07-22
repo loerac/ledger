@@ -68,15 +68,18 @@ func (lgr Ledger) PrintToTable(acctNum, fname string) {
     }
     filename += ".md"
 
+    err := os.Remove(filename)
+    CheckErr(err)
     f, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0644)
     defer f.Close()
     CheckErr(err)
 
     lf := log.New(f, "", 0)
+    lf.Println("##### Account Name:", lgr.Accounts[acctNum].Firstname)
     lf.Println("##### Account Number:", acctNum)
     lf.Println("| Date | Transfer To | Description | Cost | Balance |")
     lf.Println("|---|---|---|---|---|")
-    for _, entry := range lgr.AccountNum[acctNum] {
+    for _, entry := range lgr.Accounts[acctNum].Entry {
         ent := "|" + FormatDate(entry.Date) + "|" + entry.Store
         if entry.Address != "" {
             ent += "<br>*@" + entry.Address + "*"
