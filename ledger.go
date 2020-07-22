@@ -8,11 +8,7 @@ import (
     "strings"
 )
 
-/**
- * Ledger holds the filepath to the ledger notebook,
- * and the list of entries in the ledger (divided up by
- * the account number)
- **/
+/* Currently, the ledger holds a map of the accounts. */
 type Ledger struct {
     Accounts    map[string]*Account
 }

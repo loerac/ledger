@@ -25,8 +25,8 @@ type EntryItem struct {
 
 /**
  * Each account holds the path to the ledger notebook,
- * and the list of entries in the ledger (divided up by
- * the account number)
+ * fullname of the account, and the list of entries in
+ * the ledger (divided up by the account number)
  **/
 type Account struct {
     Filepath    string
