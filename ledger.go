@@ -8,31 +8,9 @@ import (
     "strings"
 )
 
-/**
- * Each entry must have the date that the entry was created,
- * location that the exchange was done, a reason for the exchange,
- * exchange type (income or expense), cost of exchange, and
- * current balance.
- * The address is optional, this could be left blank.
- **/
-type EntryItem struct {
-    Date        string
-    Store       string
-    Address     string
-    Detail      string
-    Exchange    string
-    Cost        float64
-    Balance     float64
-}
-
-/**
- * Ledger holds the filepath to the ledger notebook,
- * and the list of entries in the ledger (divided up by
- * the account number)
- **/
+/* Currently, the ledger holds a map of the accounts. */
 type Ledger struct {
-    Filepath    string
-    AccountNum  map[string][]EntryItem
+    Accounts    map[string]*Account
 }
 
 /**
@@ -40,16 +18,23 @@ type Ledger struct {
  * Account number starts at index 0
  **/
 const (
-    LGR_ACCOUNT_NUM = iota
-    LGR_DATE
+    LGR_DATE = iota
     LGR_LOC
     LGR_DETAIL
     LGR_EXCHANGE
     LGR_COST
     LGR_BALANCE
 
-    /* Length of the metadata */
-    METADATA_LEN
+    /* Length of the ledger metadata */
+    METADATA_LEDGER_LEN
+)
+
+const (
+    ACCT_NAME = iota
+    ACCT_NUMB
+
+    /* Length of account metadata */
+    METADATA_ACCT_LEN
 )
 
 var logger *LogFile
@@ -57,16 +42,12 @@ var logger *LogFile
 /**
  * @brief:  Create a new ledger struct object
  *
- * @arg:    lgrfp - Ledger filepath
- *
  * @return: A new created ledger struct with the file path
  **/
-func NewLedger(lgrfp, fname string) Ledger {
+func NewLedger() Ledger {
     lgr := Ledger{}
-    lgr.Filepath = lgrfp
-    lgr.AccountNum = make(map[string][]EntryItem)
-    logFile := ternary(fname != "", fname, "ledger.log").(string)
-    logger = NewLog(logFile, "ledger - ")
+    lgr.Accounts = make(map[string]*Account)
+    logger = NewLog("ledger.log", "ledger - ")
 
     return lgr
 }
@@ -74,13 +55,14 @@ func NewLedger(lgrfp, fname string) Ledger {
 /**
  * @brief:  Parse the meta data of each line in the ledger, as seen below.
  *          Each data will be added to the ledger.
- *          <ACCOUNT-NUM>:<YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>
+ *          <YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>
  *
  * @arg:    data - meta data
+ * @arg:    acctNum - Account Number of the entry
  **/
-func (lgr *Ledger) ParseLedgerLine(data string) {
+func (lgr *Ledger) ParseLedgerLine(data, acctNum string) {
     split := strings.Split(data, ":")
-    if (METADATA_LEN != len(split)) {
+    if (METADATA_LEDGER_LEN != len(split)) {
         fmt.Println("Malformed entry:", data)
         return
     }
@@ -97,9 +79,9 @@ func (lgr *Ledger) ParseLedgerLine(data string) {
     cost := StrToFloat(split[LGR_COST])
     balance := StrToFloat(split[LGR_BALANCE])
 
-    lgr.AccountNum[split[LGR_ACCOUNT_NUM]] =
+    lgr.Accounts[acctNum].Entry =
         append(
-            lgr.AccountNum[split[LGR_ACCOUNT_NUM]],
+            lgr.Accounts[acctNum].Entry,
             EntryItem{date, store, address, detail, exchange, cost, balance},
         )
 }
@@ -119,36 +101,36 @@ func (lgr *Ledger) AddEntry(acctNum, store, addr, detail string, cost float64) {
     }
 
     date := GetDate()
-    balance := lgr.AccountNum[acctNum][len(lgr.AccountNum[acctNum]) - 1].Balance + cost
+    balance := lgr.Accounts[acctNum].Entry[len(lgr.Accounts[acctNum].Entry) - 1].Balance + cost
     exchange := ternary(cost < 0.00, "Expense", "Income").(string)
 
-    lgr.AccountNum[acctNum] =
+    lgr.Accounts[acctNum].Entry =
         append(
-            lgr.AccountNum[acctNum],
+            lgr.Accounts[acctNum].Entry,
             EntryItem{date, store, addr, detail, exchange, cost, balance},
         )
 
-    newEntry := fmt.Sprintf("%s:%s:%s@%s:%s:%s:%0.2f:%0.2f", acctNum, date, store, addr, detail, exchange, cost, balance)
+    newEntry := fmt.Sprintf("%s:%s@%s:%s:%s:%0.2f:%0.2f", date, store, addr, detail, exchange, cost, balance)
     if "" == addr {
-        newEntry = fmt.Sprintf("%s:%s:%s:%s:%s:%0.2f:%0.2f", acctNum, date, store, detail, exchange, cost, balance)
+        newEntry = fmt.Sprintf("%s:%s:%s:%s:%0.2f:%0.2f", date, store, detail, exchange, cost, balance)
     }
 
-    msg := "Added new entry account number " + acctNum + ":"
-    logger.Println(msg, newEntry)
-    fmt.Println(msg)
-    lgr.PrintLedgerItem(lgr.AccountNum[acctNum][len(lgr.AccountNum[acctNum]) - 1])
+    logger.Printf("Added new ledger entry for %s: %s\n", lgr.Accounts[acctNum].Fullname, newEntry)
+    fmt.Println("Added new ledger entry:")
+    lgr.PrintLedgerItem(lgr.Accounts[acctNum].Entry[len(lgr.Accounts[acctNum].Entry) - 1])
     fmt.Println()
-    lgr.AddToLedger(newEntry)
+    lgr.AddToLedger(newEntry, acctNum)
 }
 
 /**
  * @brief:  Add the new entry to the ledger file
  *
  * @arg:    entry - Entry in the meta data format
- *          <ACCOUNT-NUM>:<YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>
+ *          <YYYYMMDDTHHMMSS>:<STORE>@<ADDRESS>:<DETAILS>:<EXCHANGE-TYPE>:<COST>:<BALANCE>
+ * @arg:    acctNum - Account Number of the entry
  **/
-func (lgr Ledger) AddToLedger(entry string) {
-    f, err := os.OpenFile(lgr.Filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+func (lgr Ledger) AddToLedger(entry, acctNum string) {
+    f, err := os.OpenFile(lgr.Accounts[acctNum].Filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     defer f.Close()
     CheckErr(err)
 
@@ -161,21 +143,35 @@ func (lgr Ledger) AddToLedger(entry string) {
 /***
  * @brief:  Read the ledger that was supplied, and add the entries
  *          to the EntryItem struct
+ *
+ * @arg:    fpaths - variadic filepaths of the ledger notebook
  ***/
-func (lgr *Ledger) ReadLedger() {
-    f, err := os.Open(lgr.Filepath)
-    defer f.Close()
-    CheckErr(err)
-
-    rd := bufio.NewReader(f)
-    for {
-        line, err := rd.ReadString('\n')
-        if err == io.EOF {
-            break
-        }
-
+func (lgr *Ledger) ReadLedger(fpaths ...string) {
+    for _, fpath := range fpaths {
+        f, err := os.Open(fpath)
+        defer f.Close()
         CheckErr(err)
-        lgr.ParseLedgerLine(line[:len(line) -1])
+
+        rd := bufio.NewReader(f)
+
+        /* Get the user name and account number */
+        line, err := rd.ReadString('\n')
+        split := strings.Split(line[:len(line) -1], ":")
+        if METADATA_ACCT_LEN != len(split) {
+            fmt.Println("Malformed ledger:", fpath)
+            return
+        }
+        lgr.Accounts[split[ACCT_NUMB]] = &Account{fpath, split[ACCT_NAME], []EntryItem{}}
+
+        for {
+            line, err := rd.ReadString('\n')
+            if err == io.EOF {
+                break
+            }
+
+            CheckErr(err)
+            lgr.ParseLedgerLine(line[:len(line) -1], split[ACCT_NUMB])
+        }
     }
 }
 
@@ -206,9 +202,10 @@ func (lgr Ledger) PrintLedgerAccount(acctNum string) {
         return
     }
 
+    fmt.Println("Account Name:", lgr.Accounts[acctNum].Fullname)
     fmt.Println("Account Number:", acctNum)
     fmt.Println("================================")
-    for _, v := range lgr.AccountNum[acctNum] {
+    for _, v := range lgr.Accounts[acctNum].Entry {
         lgr.PrintLedgerItem(v)
     }
     fmt.Println()
@@ -219,7 +216,7 @@ func (lgr Ledger) PrintLedgerAccount(acctNum string) {
  *          run `PrintLedgerItem()`
  **/
 func (lgr Ledger) PrintLedger() {
-    for key := range lgr.AccountNum {
+    for key := range lgr.Accounts {
         lgr.PrintLedgerAccount(key)
     }
 }

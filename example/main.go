@@ -6,14 +6,17 @@ import (
     lgr "github.com/loerac/ledger"
 )
 
-const LEDGER string = "notebook.lgr"
+const (
+    LEDGER1 string = "notebook1.lgr"
+    LEDGER2 string = "notebook2.lgr"
+)
 
 func main() {
     /* Get a new init ledger struct */
-    ledger := lgr.NewLedger(LEDGER, "")
+    ledger := lgr.NewLedger()
 
     /* Read the ledger notebook from above */
-    ledger.ReadLedger()
+    ledger.ReadLedger(LEDGER1, LEDGER2)
 
     /* Print the ledger out pretty */
     ledger.PrintLedger()
@@ -29,8 +32,8 @@ func main() {
     ledger.PrintToTable("936e1204e7b8c686", "ledger-table")
 
     /* Add a new account */
-    fullname := "Christian Loera"
-    hash := ledger.CreateAccountHash(fullname, 12.90)
-    ledger.AddEntry(hash, "Amazon", "", "Bright White Ties", -2.90)
-    fmt.Println("New account number for", fullname, "-", hash)
+    fullname := "Jimmy Johns"
+    acctNum := ledger.CreateAccountHash(fullname, "notebook3.lgr", 12.90)
+    fmt.Println("New account number for", fullname, "-", acctNum)
+    ledger.AddEntry(acctNum, "Subway", "Subway 456 Rd., Subs City, Subs State", "Subs", -6.12)
 }

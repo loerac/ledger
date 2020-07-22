@@ -3,24 +3,77 @@ package ledger
 import (
     "fmt"
     "hash/maphash"
+    "os"
 )
+
+/**
+ * Each entry must have the date that the entry was created,
+ * location that the exchange was done, a reason for the exchange,
+ * exchange type (income or expense), cost of exchange, and
+ * current balance.
+ * The address is optional, this could be left blank.
+ **/
+type EntryItem struct {
+    Date        string
+    Store       string
+    Address     string
+    Detail      string
+    Exchange    string
+    Cost        float64
+    Balance     float64
+}
+
+/**
+ * Each account holds the path to the ledger notebook,
+ * fullname of the account, and the list of entries in
+ * the ledger (divided up by the account number)
+ **/
+type Account struct {
+    Filepath    string
+    Fullname    string
+    Entry       []EntryItem
+}
 
 /**
  * @brief:  Create a new accout for the ledger. The account will be a hash
  *          of the users full name, date of creation, and the initial balance.
+ *          The new account will then be added to the map of accounts. A new
+ *          ledger notebook will also be created with the initial balance.
  *
  * @arg:    fullname - Full name of the user being added
+ * @arg:    fpath - Filepath to create the new ledger notebook
  * @arg:    initBalance - Initial balance of the user.
  *
  * @return: The hash value of the account
  **/
-func (lgr Ledger) CreateAccountHash(fullname string, initBalance float64) string {
+func (lgr *Ledger) CreateAccountHash(fullname, fpath string, initBalance float64) string {
+    /* Calculate the hash and then add it to the ledger */
     var h maphash.Hash
     h.WriteString(fullname + GetDate() + fmt.Sprintf("%f", initBalance))
     acctNum := fmt.Sprintf("%x", h.Sum64())
-    lgr.AccountNum[acctNum] = make([]EntryItem,1)
-    lgr.AccountNum[acctNum][0].Balance = initBalance
-    logger.Printf("New account added: User(%s) -- Account Number(%s)\n", fullname, acctNum)
+    lgr.Accounts[acctNum] = &Account{fpath, fullname, []EntryItem{}}
+
+    /* Create a new ledger notebook */
+    err := os.RemoveAll(fpath)
+    CheckErr(err)
+    f, err := os.OpenFile(fpath, os.O_CREATE|os.O_WRONLY, 0644)
+    defer f.Close()
+    CheckErr(err)
+
+    /* Add the account fullname and account number at the beginning */
+    if _, err := f.Write([]byte(fullname + ":" + acctNum + "\n")); err != nil {
+        f.Close()
+        panic(err)
+    }
+
+    /* Add the first entry with the initial balance */
+    newEntry := fmt.Sprintf("%s:---:---:Income:0.0:%0.2f", GetDate(), initBalance)
+    logger.Printf("New account created for '%s -- %s': %s\n", fullname, acctNum, newEntry)
+    if _, err := f.Write([]byte(newEntry + "\n")); err != nil {
+        f.Close()
+        panic(err)
+    }
+    lgr.ReadLedger(fpath)
 
     return acctNum
 }
@@ -33,7 +86,7 @@ func (lgr Ledger) CreateAccountHash(fullname string, initBalance float64) string
  * @return true if valid, else false
  **/
 func (lgr Ledger) IsValidAccount(acctNum string) bool {
-    if _, ok := lgr.AccountNum[acctNum]; !ok {
+    if _, ok := lgr.Accounts[acctNum]; !ok {
         fmt.Println("Account number not found:", acctNum)
         return false
     }
