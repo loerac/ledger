@@ -79,6 +79,23 @@ func (lgr *Ledger) CreateAccountHash(fullname, fpath string, initBalance float64
 }
 
 /**
+ * @brief:  Get the account number given the ledger notebook
+ *
+ * @arg:    filepath - Path to the ledger notebook
+ *
+ * @return: The account number of the filepath
+ **/
+func (lgr *Ledger) GetAcctNum(filepath string) string {
+    for key, acct := range lgr.Accounts {
+        if acct.Filepath == filepath {
+            return key
+        }
+    }
+
+    return ""
+}
+
+/**
  * @brief:  Check if the given account number is valid in the ledger
  *
  * @arg:    acctNum - Account number to check if found/valid
