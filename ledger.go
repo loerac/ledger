@@ -97,6 +97,7 @@ func (lgr *Ledger) ParseLedgerLine(data, acctNum string) {
  **/
 func (lgr *Ledger) AddEntry(acctNum, store, addr, detail string, cost float64) {
     if !lgr.IsValidAccount(acctNum) {
+        fmt.Println("Invalid account number:", acctNum)
         return
     }
 
