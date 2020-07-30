@@ -1,9 +1,13 @@
 package ledger
 
 import (
-    "fmt"
     "strconv"
     "time"
+)
+
+const (
+    DATE_TIME   string = "20060102T150405"
+    DATE_ONLY   string = "2006-01-02"
 )
 
 /**
@@ -69,13 +73,13 @@ func ternary(condition bool, valid, invalid interface{}) interface{} {
 /**
  * @brief:  Get the current date and time
  *
- * @return: The date and time in the format of <YYYYMMDD>T<HHMMSS>
+ * @agr:    The format of which to put the date
+ *
+ * @return: The date and/or time in the format of which the user has entered
  **/
-func GetDate() string {
+func GetDate(format string) string {
     currTime := time.Now()
-    return fmt.Sprintf("%d%02d%02dT%02d%d%d",
-            currTime.Year(), currTime.Month(), currTime.Day(),
-            currTime.Hour(), currTime.Minute(), currTime.Second())
+    return currTime.Format(format)
 }
 
 func FormatDate(date string) string{
@@ -83,7 +87,9 @@ func FormatDate(date string) string{
     fmtDate := date[:4] + "/" + date[4:6] + "/" + date[6:8] + " "
 
     /* Time */
-    fmtDate += date[9:11] + ":" + date[11:13] + ":" + date[13:]
+    if len(date) > 19 {
+        fmtDate += date[12:13] + ":" + date[15:16] + ":" + date[18:19]
+    }
 
     return fmtDate
 }
