@@ -101,7 +101,7 @@ func (lgr *Ledger) AddEntry(acctNum, store, addr, detail string, cost float64) {
         return
     }
 
-    date := GetDate()
+    date := GetDate(DATE_TIME)
     balance := lgr.Accounts[acctNum].Entry[len(lgr.Accounts[acctNum].Entry) - 1].Balance + cost
     exchange := ternary(cost < 0.00, "Expense", "Income").(string)
 
