@@ -11,7 +11,7 @@ import (
 const (
     LEDGER_DESC string = "The ledger notebook"
     PRINTPRETTY_DESC string = "Print the ledger notebook pretty"
-    PRINTTABLE_DESC string = "Print the ledger notebook to a markdown table\nNote: You can pass an output markdown file name"
+    PRINTTABLE_DESC string = "Print the ledger notebook to a markdown table\nNote: Output file is required"
     ADDENTRY_DESC string = "Add a new entry to the ledger notebook\nNote: Ledger notebook is required"
     NEWACCOUNT_DESC string = "Create a new account"
 )
@@ -62,13 +62,8 @@ func (lgr *Ledger) ArgumentParser() {
 
     /* Read the ledger notebook from above */
     lgr.ReadLedger(notebook)
-    lgr.CreateAccount()
-    lgr.AddToEntry()
-    lgr.PrintPretty()
-    lgr.PrintTable()
-}
+    acctNum := lgr.GetAcctNum(notebook)
 
-func (lgr *Ledger) CreateAccount() {
     /* Create a new account */
     if createAccount {
         fullname := readBuf("Enter the full name of the new account", true)
@@ -77,29 +72,23 @@ func (lgr *Ledger) CreateAccount() {
         notebook = strings.ToLower(strings.Replace(notebook, " ", "-", -1))
         lgr.CreateAccountHash(fullname, notebook, balance)
     }
-}
 
-func (lgr *Ledger) AddToEntry() {
     /* Add to new items to the ledger, one expense and one income type */
     if addEntry {
         transaction = readBuf("Enter area of transaction", true)
         location = readBuf("Enter area of location of transaction", false)
         detail = readBuf("Enter details of transaction", true)
         cost = StrToFloat(readBuf("Enter cost of transaction", true))
-        lgr.AddEntry(lgr.GetAcctNum(notebook), transaction, location, detail, cost)
+        lgr.AddEntry(acctNum, transaction, location, detail, cost)
     }
-}
 
-func (lgr Ledger) PrintPretty() {
     /* Print the ledger out pretty */
     if printPretty {
         lgr.PrintLedger()
     }
-}
 
-func (lgr Ledger) PrintTable() {
     /* Print the information into a markdown table */
     if printTable != "" {
-        lgr.PrintToTable(lgr.GetAcctNum(notebook), printTable)
+        lgr.PrintToTable(acctNum, printTable)
     }
 }
