@@ -49,7 +49,7 @@ type Account struct {
 func (lgr *Ledger) CreateAccountHash(fullname, fpath string, initBalance float64) string {
     /* Calculate the hash and then add it to the ledger */
     var h maphash.Hash
-    h.WriteString(fullname + GetDate() + fmt.Sprintf("%f", initBalance))
+    h.WriteString(fullname + GetDate(DATE_TIME) + fmt.Sprintf("%f", initBalance))
     acctNum := fmt.Sprintf("%x", h.Sum64())
     lgr.Accounts[acctNum] = &Account{fpath, fullname, []EntryItem{}}
 
@@ -67,7 +67,7 @@ func (lgr *Ledger) CreateAccountHash(fullname, fpath string, initBalance float64
     }
 
     /* Add the first entry with the initial balance */
-    newEntry := fmt.Sprintf("%s:---:---:Income:0.0:%0.2f", GetDate(), initBalance)
+    newEntry := fmt.Sprintf("%s:---:---:Income:0.0:%0.2f", GetDate(DATE_TIME), initBalance)
     logger.Printf("New account created for '%s -- %s': %s\n", fullname, acctNum, newEntry)
     if _, err := f.Write([]byte(newEntry + "\n")); err != nil {
         f.Close()
@@ -76,6 +76,23 @@ func (lgr *Ledger) CreateAccountHash(fullname, fpath string, initBalance float64
     lgr.ReadLedger(fpath)
 
     return acctNum
+}
+
+/**
+ * @brief:  Get the account number given the ledger notebook
+ *
+ * @arg:    filepath - Path to the ledger notebook
+ *
+ * @return: The account number of the filepath
+ **/
+func (lgr *Ledger) GetAcctNum(filepath string) string {
+    for key, acct := range lgr.Accounts {
+        if acct.Filepath == filepath {
+            return key
+        }
+    }
+
+    return ""
 }
 
 /**

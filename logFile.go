@@ -41,7 +41,7 @@ func NewLog(fname, prefix string) *LogFile {
  * @return: LogFile struct pointer
  **/
 func CreateLogFile(fname, prefix string) *LogFile {
-    filename := ternary(fname != "", fname, GetDate() + ".log").(string)
+    filename := ternary(fname != "", fname, GetDate(DATE_TIME) + ".log").(string)
     f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     CheckErr(err)
 
@@ -60,7 +60,7 @@ func CreateLogFile(fname, prefix string) *LogFile {
  * @arg:    acctNum - Account name to save the data if fname is not present
  **/
 func (lgr Ledger) PrintToTable(acctNum, fname string) {
-    filename := GetDate()
+    filename := GetDate(DATE_TIME)
     if fname != "" {
        filename = fname
     } else if (lgr.IsValidAccount(acctNum)) {
@@ -75,6 +75,12 @@ func (lgr Ledger) PrintToTable(acctNum, fname string) {
     CheckErr(err)
 
     lf := log.New(f, "", 0)
+    lf.Println("---")
+    lf.Println("title:", lgr.Accounts[acctNum].Fullname)
+    lf.Println("date:", GetDate(DATE_ONLY))
+    lf.Printf("description: Last transaction - '%s $%0.2f'", lgr.Accounts[acctNum].Entry[len(lgr.Accounts[acctNum].Entry) - 1].Detail, lgr.Accounts[acctNum].Entry[len(lgr.Accounts[acctNum].Entry) - 1].Cost)
+    lf.Println("---")
+
     lf.Println("##### Account Name:", lgr.Accounts[acctNum].Fullname)
     lf.Println("##### Account Number:", acctNum)
     lf.Println("| Date | Transfer To | Description | Cost | Balance |")
@@ -84,7 +90,7 @@ func (lgr Ledger) PrintToTable(acctNum, fname string) {
         if entry.Address != "" {
             ent += "<br>*@" + entry.Address + "*"
         }
-        ent += "|" + entry.Detail + "|" + fmt.Sprintf("%0.2f", entry.Cost) + "|" + fmt.Sprintf("%0.2f", entry.Balance) + "|"
+        ent += "|" + entry.Detail + "|" + fmt.Sprintf("$%0.2f", entry.Cost) + "|" + fmt.Sprintf("$%0.2f", entry.Balance) + "|"
         lf.Println(ent)
     }
 }
