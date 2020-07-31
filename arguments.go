@@ -66,7 +66,12 @@ func (lgr *Ledger) ArgumentParser() {
     flag.BoolVar(&createAccount, "new-acct", false, NEWACCOUNT_DESC)
     flag.Parse()
 
-    if notebook == "" && !createAccount {
+    /* Either the ledger or create new account flag needs to be passed, not both */
+    if notebook != "" && createAccount {
+        fmt.Println("Error: Cannot read ledger notebook and create account.")
+        fmt.Println("       Only one can be done at a time")
+        os.Exit(1)
+    } else if notebook == "" && !createAccount {
         fmt.Println("Error: Missing ledger notebook")
         flag.PrintDefaults()
         os.Exit(1)
@@ -81,11 +86,11 @@ func (lgr *Ledger) ArgumentParser() {
         lgr.CreateAccountHash(fullname, notebook, balance)
     }
 
-    /* Read the ledger notebook from above */
+    /* Read the ledger notebook */
     lgr.ReadLedger(notebook)
     acctNum := lgr.GetAcctNum(notebook)
 
-    /* Add to new items to the ledger, one expense and one income type */
+    /* Add new entry to the ledger */
     if addEntry {
         transaction := readBuf("Enter area of transaction", true)
         location := readBuf("Enter area of location of transaction", false)
