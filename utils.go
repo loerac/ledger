@@ -84,11 +84,11 @@ func GetDate(format string) string {
 
 func FormatDate(date string) string{
     /* Date */
-    fmtDate := date[:4] + "/" + date[4:6] + "/" + date[6:8] + " "
+    fmtDate := date[:4] + "/" + date[4:6] + "/" + date[6:8]
 
     /* Time */
-    if len(date) > 19 {
-        fmtDate += date[12:13] + ":" + date[15:16] + ":" + date[18:19]
+    if len(date) == 15 {
+        fmtDate += " " + date[9:11] + ":" + date[11:13] + ":" + date[13:15]
     }
 
     return fmtDate
