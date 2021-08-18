@@ -2,6 +2,7 @@ package ledger
 
 import (
     "bufio"
+    "log"
     "fmt"
     "io"
     "os"
@@ -136,8 +137,7 @@ func (lgr Ledger) AddToLedger(entry, acctNum string) {
     CheckErr(err)
 
     if _, err := f.Write([]byte(entry + "\n")); err != nil {
-        f.Close()
-        panic(err)
+        log.Fatal(err)
     }
 }
 
@@ -184,13 +184,13 @@ func (lgr *Ledger) ReadLedger(fpaths ...string) {
  **/
 func (lgr Ledger) PrintLedgerItem(entry EntryItem) {
     fmt.Println(entry.Date, entry.Store)
-
-    fmt.Printf("\t\t%s: %s $%0.2f\n", entry.Exchange, entry.Detail, entry.Cost)
-    fmt.Printf("\t\tBalance: $%0.2f\n", entry.Balance)
-
     if entry.Address != "" {
         fmt.Println("\t\tLocation:", entry.Address)
     }
+
+    fmt.Printf("\t\tTransaction: %0.2f$\n", entry.Cost)
+    fmt.Printf("\t\tDetails: %s\n", entry.Detail)
+    fmt.Printf("\t\tBalance: %0.2f$\n", entry.Balance)
 }
 
 /**
@@ -206,8 +206,11 @@ func (lgr Ledger) PrintLedgerAccount(acctNum string) {
     fmt.Println("Account Name:", lgr.Accounts[acctNum].Fullname)
     fmt.Println("Account Number:", acctNum)
     fmt.Println("================================")
-    for _, v := range lgr.Accounts[acctNum].Entry {
-        lgr.PrintLedgerItem(v)
+
+    total_entries := len(lgr.Accounts[acctNum].Entry) - 1
+    for i := total_entries; i >= 0; i-- {
+        entry := lgr.Accounts[acctNum].Entry[i]
+        lgr.PrintLedgerItem(entry)
     }
     fmt.Println()
 }

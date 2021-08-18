@@ -9,11 +9,11 @@ import (
 )
 
 const (
-    LEDGER_DESC string = "The ledger notebook"
+    LEDGER_DESC string      = "The ledger notebook"
     PRINTPRETTY_DESC string = "Print the ledger notebook pretty"
-    PRINTTABLE_DESC string = "Print the ledger notebook to a markdown table\nNote: Output file is required"
-    ADDENTRY_DESC string = "Add a new entry to the ledger notebook\nNote: Ledger notebook is required"
-    NEWACCOUNT_DESC string = "Create a new account"
+    PRINTTABLE_DESC string  = "Print the ledger notebook to a markdown table\nNote: Output file is required"
+    ADDENTRY_DESC string    = "Add a new entry to the ledger notebook\nNote: Ledger notebook is required"
+    NEWACCOUNT_DESC string  = "Create a new account"
 )
 
 /***
@@ -62,8 +62,8 @@ func (lgr *Ledger) ArgumentParser() {
     flag.StringVar(&notebook, "l", "", LEDGER_DESC)
     flag.BoolVar(&printPretty, "pp", false, PRINTPRETTY_DESC)
     flag.StringVar(&printTable, "pt", "", PRINTTABLE_DESC)
-    flag.BoolVar(&addEntry, "add-entry", false, ADDENTRY_DESC)
-    flag.BoolVar(&createAccount, "new-acct", false, NEWACCOUNT_DESC)
+    flag.BoolVar(&addEntry, "a", false, ADDENTRY_DESC)
+    flag.BoolVar(&createAccount, "n", false, NEWACCOUNT_DESC)
     flag.Parse()
 
     /* Either the ledger or create new account flag needs to be passed, not both */
@@ -92,8 +92,8 @@ func (lgr *Ledger) ArgumentParser() {
 
     /* Add new entry to the ledger */
     if addEntry {
-        transaction := readBuf("Enter area of transaction", true)
-        location := readBuf("Enter area of location of transaction", false)
+        transaction := readBuf("Enter where the transaction took place", true)
+        location := readBuf("Enter address of the transaction (optional)", false)
         detail := readBuf("Enter details of transaction", true)
         cost := StrToFloat(readBuf("Enter cost of transaction", true))
         lgr.AddEntry(acctNum, transaction, location, detail, cost)
