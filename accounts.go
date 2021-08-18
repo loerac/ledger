@@ -2,6 +2,7 @@ package ledger
 
 import (
     "fmt"
+    "log"
     "hash/maphash"
     "os"
 )
@@ -49,8 +50,8 @@ type Account struct {
 func (lgr *Ledger) CreateAccountHash(fullname, fpath string, initBalance float64) string {
     /* Calculate the hash and then add it to the ledger */
     var h maphash.Hash
-    h.WriteString(fullname + GetDate(DATE_TIME) + fmt.Sprintf("%f", initBalance))
-    acctNum := fmt.Sprintf("%x", h.Sum64())
+    h.WriteString(fullname + GetDate(DATE_TIME) + NumToStr(initBalance))
+    acctNum := NumToStr(h.Sum64())
     lgr.Accounts[acctNum] = &Account{fpath, fullname, []EntryItem{}}
 
     /* Create a new ledger notebook */
@@ -62,16 +63,14 @@ func (lgr *Ledger) CreateAccountHash(fullname, fpath string, initBalance float64
 
     /* Add the account fullname and account number at the beginning */
     if _, err := f.Write([]byte(fullname + ":" + acctNum + "\n")); err != nil {
-        f.Close()
-        panic(err)
+        log.Fatal(err)
     }
 
     /* Add the first entry with the initial balance */
     newEntry := fmt.Sprintf("%s:---:---:Income:0.0:%0.2f", GetDate(DATE_TIME), initBalance)
     logger.Printf("New account created for '%s -- %s': %s\n", fullname, acctNum, newEntry)
     if _, err := f.Write([]byte(newEntry + "\n")); err != nil {
-        f.Close()
-        panic(err)
+        log.Fatal(err)
     }
     lgr.ReadLedger(fpath)
 
