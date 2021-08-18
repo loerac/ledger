@@ -1,6 +1,8 @@
 package ledger
 
 import (
+    "fmt"
+    "log"
     "strconv"
     "time"
 )
@@ -11,19 +13,18 @@ const (
 )
 
 /**
- * @brief:  Check if any errors occured, panic if so
+ * @brief:  Check if any errors occured, log the error if there are any
  *
  * @arg:    e - Error
  **/
 func CheckErr(e error) {
     if nil != e {
-        panic(e)
+        log.Fatal(e)
     }
 }
 
 /**
  * @brief:  Converts a string to an uint64.
- *          Panic if errors
  *
  * @arg:    str - String that is to be converted to uint64
  *
@@ -38,7 +39,6 @@ func StrToUint(str string) uint64 {
 
 /**
  * @brief:  Converts a string to an float64.
- *          Panic if errors
  *
  * @arg:    str - String that is to be converted to float64
  *
@@ -49,6 +49,17 @@ func StrToFloat(str string) float64 {
     CheckErr(err)
 
     return f
+}
+
+/***
+ * @brief:  Convert a number (int, float, etc) to a string
+ *
+ * @arg:    number - Number that is to be converted
+ *
+ * @return: string value of the number
+ ***/
+func NumToStr(number interface{}) string {
+    return fmt.Sprintf("%v", number)
 }
 
 /**
