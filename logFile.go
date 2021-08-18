@@ -75,22 +75,39 @@ func (lgr Ledger) PrintToTable(acctNum, fname string) {
     CheckErr(err)
 
     lf := log.New(f, "", 0)
+    /* Section below is used for Markdown in Go-Hugo
     lf.Println("---")
     lf.Println("title:", lgr.Accounts[acctNum].Fullname)
     lf.Println("date:", GetDate(DATE_ONLY))
     lf.Printf("description: Last transaction - '%s $%0.2f'", lgr.Accounts[acctNum].Entry[len(lgr.Accounts[acctNum].Entry) - 1].Detail, lgr.Accounts[acctNum].Entry[len(lgr.Accounts[acctNum].Entry) - 1].Cost)
     lf.Println("---")
+    */
 
     lf.Println("##### Account Name:", lgr.Accounts[acctNum].Fullname)
     lf.Println("##### Account Number:", acctNum)
     lf.Println("| Date | Transfer To | Description | Cost | Balance |")
     lf.Println("|---|---|---|---|---|")
-    for _, entry := range lgr.Accounts[acctNum].Entry {
-        ent := "|" + FormatDate(entry.Date) + "|" + entry.Store
+
+    total_entries := len(lgr.Accounts[acctNum].Entry) - 1
+    for i := total_entries; i >= 0; i-- {
+        entry := lgr.Accounts[acctNum].Entry[i]
+
+        ent := fmt.Sprintf ("|%s|%s|%s|%s|%s|",
+            FormatDate(entry.Date),
+            entry.Store,
+            entry.Detail,
+            fmt.Sprintf("$%0.2f", entry.Cost),
+            fmt.Sprintf("$%0.2f", entry.Balance))
         if entry.Address != "" {
-            ent += "<br>*@" + entry.Address + "*"
+            ent = fmt.Sprintf ("|%s|%s<br>*@%s*|%s|%s|%s|",
+                FormatDate(entry.Date),
+                entry.Store,
+                entry.Address,
+                entry.Detail,
+                fmt.Sprintf("$%0.2f", entry.Cost),
+                fmt.Sprintf("$%0.2f",
+                entry.Balance))
         }
-        ent += "|" + entry.Detail + "|" + fmt.Sprintf("$%0.2f", entry.Cost) + "|" + fmt.Sprintf("$%0.2f", entry.Balance) + "|"
         lf.Println(ent)
     }
 }
